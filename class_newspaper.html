@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cafe Times — Class Edition</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:   #110e08;
+      --paper: #f6f1e6;
+      --mid:   #c2b49a;
+      --rule:  #1a140a;
+      --red:   #8b1a1a;
+      --gold:  #b8860b;
+      --tnr:   'Times New Roman', Times, serif;
+    }
+
+    body {
+      background: #c9bc9f;
+      font-family: var(--tnr);
+      font-size: 17px;
+      color: var(--ink);
+    }
+
+    .page {
+      background: var(--paper);
+      max-width: 1080px;
+      margin: 2rem auto;
+      box-shadow: 0 6px 50px rgba(0,0,0,0.4);
+    }
+
+    /* ── MASTHEAD ── */
+    .masthead {
+      padding: 1.2rem 2rem 0.8rem;
+      border-bottom: 6px double var(--rule);
+      text-align: center;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.35rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .flag {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: clamp(2.8rem, 7vw, 5.2rem);
+      line-height: 1;
+    }
+
+    .flag-sub {
+      font-family: var(--tnr);
+      font-style: italic;
+      font-size: 0.9rem;
+      color: #555;
+      letter-spacing: 0.15em;
+      margin-top: 0.15rem;
+    }
+
+    .staff-bar {
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin-top: 0.55rem;
+      padding: 0.3rem 0;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: center;
+      gap: 1.8rem;
+      flex-wrap: wrap;
+    }
+
+    .staff-bar .role { color: var(--red); font-weight: 700; }
+
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--rule);
+      margin-top: 0.45rem;
+      padding-top: 0.3rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .bottom-bar .center-tag {
+      font-family: var(--tnr);
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--red);
+    }
+
+    /* ── BANNER ── */
+    .breaking {
+      background: var(--red);
+      color: #fff;
+      text-align: center;
+      padding: 0.35rem 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-family: var(--tnr);
+      font-weight: 700;
+    }
+
+    /* ── CONTENT ── */
+    .content { padding: 1.4rem 2rem; }
+
+    .section-rule {
+      text-align: center;
+      border-top: 3px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 0.3rem 0;
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin: 1.2rem 0 1rem;
+      font-family: var(--tnr);
+      font-weight: 700;
+    }
+
+    /* Grids */
+    .col-3   { display: grid; grid-template-columns: repeat(3,1fr); gap: 0 1.4rem; }
+    .col-2   { display: grid; grid-template-columns: repeat(2,1fr); gap: 0 1.4rem; }
+    .col-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 0 1.4rem; }
+
+    .col-3 > * + *, .col-2 > * + *, .col-2-1 > * + * {
+      border-left: 1px solid var(--mid);
+      padding-left: 1.4rem;
+    }
+
+    hr.col-rule { border: none; border-top: 1px solid var(--mid); margin: 1.1rem 0; }
+
+    /* Article */
+    article { padding: 0.4rem 0 1rem; }
+
+    .kicker {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.25rem;
+      font-family: var(--tnr);
+    }
+
+    article h2 {
+      font-family: var(--tnr);
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--ink);
+      margin-bottom: 0.35rem;
+    }
+
+    .hl-xl { font-size: clamp(2rem, 4vw, 3rem); }
+    .hl-lg { font-size: clamp(1.5rem, 3vw, 2.1rem); }
+    .hl-md { font-size: clamp(1.2rem, 2vw, 1.65rem); }
+    .hl-sm { font-size: 1.15rem; }
+
+    .deck {
+      font-family: var(--tnr);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: #444;
+      line-height: 1.55;
+      margin-bottom: 0.55rem;
+    }
+
+    .byline {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      border-top: 1px solid var(--mid);
+      border-bottom: 1px solid var(--mid);
+      padding: 0.2rem 0;
+      margin-bottom: 0.65rem;
+      font-family: var(--tnr);
+    }
+    .byline strong { color: var(--ink); }
+
+    article p {
+      font-size: 0.94rem;
+      line-height: 1.8;
+      margin-bottom: 0.65rem;
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    .lead-p::first-letter {
+      font-family: var(--tnr);
+      font-size: 4rem;
+      font-weight: 900;
+      float: left;
+      line-height: 0.78;
+      margin: 0.06em 0.08em 0 0;
+      color: var(--ink);
+    }
+
+    /* Pull quote */
+    .pq {
+      border-top: 3px solid var(--rule);
+      border-bottom: 3px solid var(--rule);
+      padding: 0.8rem 0.6rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+    .pq p {
+      font-family: var(--tnr);
+      font-style: italic;
+      font-size: 1.1rem;
+      margin: 0;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .pq p::first-letter { all: unset; }
+    .pq cite {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #666;
+      margin-top: 0.4rem;
+      font-family: var(--tnr);
+    }
+
+    /* Highlight box */
+    .hbox {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 1rem 1.1rem;
+      margin: 0.9rem 0;
+    }
+    .hbox .hbox-head {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid #444;
+      padding-bottom: 0.28rem;
+      margin-bottom: 0.55rem;
+      font-family: var(--tnr);
+    }
+    .hbox p {
+      font-size: 0.88rem;
+      color: #e8e0d0;
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      text-align: left;
+      font-family: var(--tnr);
+    }
+    .hbox p::first-letter { all: unset; }
+    .hbox p:last-child { margin-bottom: 0; }
+
+    /* Trophy banner */
+    .trophy-banner {
+      background: linear-gradient(135deg, #1a3a1a, #2d5a2d);
+      color: #fff;
+      text-align: center;
+      padding: 1.5rem 1rem;
+      margin: 0.9rem 0;
+      border: 3px solid var(--gold);
+    }
+    .trophy-banner .trophy-icon { font-size: 3rem; margin-bottom: 0.4rem; }
+    .trophy-banner .trophy-title {
+      font-family: var(--tnr);
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+    .trophy-banner .trophy-sub {
+      font-family: var(--tnr);
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      margin-top: 0.3rem;
+    }
+
+    /* Footer */
+    .page-footer {
+      border-top: 4px double var(--rule);
+      background: var(--ink);
+      color: var(--mid);
+      text-align: center;
+      padding: 0.7rem 2rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-family: var(--tnr);
+    }
+
+    @media print {
+      @page { size: A3 landscape; margin: 8mm; }
+      body { background: #fff; }
+      .page { box-shadow: none; margin: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="top-bar">
+      <span>Vol. 1 &bull; Issue 1</span>
+      <span>Your Classroom's #1 Source for News</span>
+      <span>Week of March 21, 2026</span>
+    </div>
+    <div class="flag">Cafe Times</div>
+    <div class="flag-sub">All the News That's Fit to Print &mdash; From Our Classroom to Yours</div>
+
+    <div class="staff-bar">
+      <span><span class="role">Reporter:</span> Olivia</span>
+      <span><span class="role">Reporter:</span> Gwen</span>
+      <span><span class="role">Reporter:</span> Ryne</span>
+      <span><span class="role">Reporter:</span> Hudson</span>
+      <span><span class="role">Reporter:</span> Everett</span>
+      <span><span class="role">Manager:</span> William</span>
+    </div>
+
+    <div class="bottom-bar">
+      <span>Free to All Students</span>
+      <span class="center-tag">Managed by <strong>William</strong> &bull; Spring Edition</span>
+      <span>March 21, 2026</span>
+    </div>
+  </header>
+
+  <div class="breaking">&#9733; &nbsp; Special Edition: Spring Break Is Almost Here! &nbsp; &#9733;</div>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="section-rule">This Week's Top Stories</div>
+
+    <div class="col-2-1">
+
+      <!-- LEAD: MINI WEEK / SHORTER HOURS -->
+      <article>
+        <p class="kicker">Week in Review</p>
+        <h2 class="hl-xl">Shorter Hours Make<br><em>for a Sweet Week</em></h2>
+        <p class="deck">With less time in the classroom each day, students found this week to be a breath of fresh air — and a perfect warm-up for spring break.</p>
+        <div class="byline">By <strong>Olivia</strong> &bull; Staff Reporter &bull; Managed by William</div>
+        <p class="lead-p">This week was unlike any other on the school calendar. With shorter hours in class each day, students and teachers found themselves working with a trimmed schedule — and the results were surprisingly wonderful. Less time in the building meant more focus, more energy, and a whole lot more excitement buzzing through the hallways.</p>
+        <p>Rather than the usual full day, the shortened classroom hours gave everyone a chance to breathe, recharge, and still get through everything that needed to be covered. Teachers packed their lessons with purpose, and students showed up ready to make every minute count. There was something energizing about knowing the day would wrap up a little earlier than normal.</p>
+        <p>"It felt like everyone was just a little more cheerful," noted one observer in the hallway. And it is hard to argue with that. Shorter hours have a way of raising spirits — especially when spring break is right around the corner and the countdown is very much on.</p>
+
+        <div class="pq">
+          <p>"Shorter hours, bigger smiles. That about sums up the week."</p>
+          <cite>— Gwen, Staff Reporter</cite>
+        </div>
+
+        <p>As the week draws to a close, students can look back with pride on what they accomplished in less time than usual. Homework was turned in, participation was strong, and the whole building had an undeniable spring-break-eve kind of energy. Well done to everyone — teachers and students alike.</p>
+      </article>
+
+      <!-- SIDEBAR -->
+      <div>
+        <!-- SPRING BREAK -->
+        <article>
+          <p class="kicker">Upcoming</p>
+          <h2 class="hl-md">Spring Break<br>Is Almost Here!</h2>
+          <div class="byline">By <strong>Ryne</strong> &bull; Managed by William</div>
+          <p class="lead-p">The moment every student has been waiting for is nearly upon us. Spring break is just around the corner, and excitement has reached a fever pitch throughout the building.</p>
+          <p>Students are already making plans — trips with family, sleeping in, and most importantly, a well-deserved rest from the school routine. Teachers are wrapping up units, and the general atmosphere can best be described as joyfully antsy.</p>
+        </article>
+
+        <hr class="col-rule" />
+
+        <!-- MONDAY OFF -->
+        <article>
+          <p class="kicker">Extra Good News</p>
+          <h2 class="hl-md">Extended Break:<br>Monday Is Off!</h2>
+          <div class="byline">By <strong>Hudson</strong> &bull; Managed by William</div>
+          <p>In what may be the best news of the week, students have learned that spring break will be even longer than expected — because <strong>Monday is off!</strong> That means one extra glorious day of rest and fun before the school routine kicks back in.</p>
+
+          <div class="hbox">
+            <div class="hbox-head">Spring Break Countdown</div>
+            <p>&#9733; &nbsp;Shorter class hours this week: Complete &#10003;</p>
+            <p>&#9733; &nbsp;Spring break begins: Very soon!</p>
+            <p>&#9733; &nbsp;Monday off: Yes — enjoy every minute!</p>
+            <p>&#9733; &nbsp;Extended break total: Extra long this year</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- DOJO + LITTLE BUDDIES -->
+    <hr class="col-rule" />
+    <div class="section-rule">School Spotlight</div>
+
+    <div class="col-3">
+
+      <!-- DOJO WINNER -->
+      <article>
+        <p class="kicker">Dojo Award</p>
+        <h2 class="hl-lg">Table 4 Takes<br><em>the Dojo Crown!</em></h2>
+        <div class="byline">By <strong>Everett</strong> &bull; Managed by William</div>
+
+        <div class="trophy-banner">
+          <div class="trophy-icon">&#127942;</div>
+          <div class="trophy-title">TABLE 4</div>
+          <div class="trophy-sub">Dojo Winners &bull; This Week</div>
+        </div>
+
+        <p class="lead-p">After a hard-fought competition, the results are in — and Table 4 has officially been crowned this week's Dojo winner! The announcement sent a wave of cheers through the classroom as Table 4 celebrated their well-earned victory.</p>
+        <p>The Dojo system rewards students for positive behavior, teamwork, hard work, and doing the right thing — and this week, Table 4 demonstrated all of those qualities in abundance. Their consistency, effort, and great attitude throughout the shortened school days set them apart from every other table.</p>
+        <p>Congratulations to every student sitting at Table 4. You represented your table with pride, and the whole class tips its hat to you. The trophy — and the bragging rights — are yours this week!</p>
+
+        <div class="pq">
+          <p>"Table 4 worked hard and it showed. Congrats to the champions!"</p>
+          <cite>— Everett, Staff Reporter</cite>
+        </div>
+      </article>
+
+      <!-- LITTLE BUDDIES -->
+      <article style="grid-column: span 2; border-left: 1px solid var(--mid); padding-left: 1.4rem;">
+        <p class="kicker">Special Event</p>
+        <h2 class="hl-lg">Little Buddies Brings<br><em>Big Smiles All Around</em></h2>
+        <div class="byline">By <strong>Gwen</strong> &amp; <strong>Olivia</strong> &bull; Managed by William</div>
+        <p class="lead-p">This week's Little Buddies session was nothing short of wonderful. Students had the chance to spend time with their little buddies, and the joy on everyone's faces said everything that words cannot fully capture. Laughter filled the room, activities were shared, and bonds were strengthened in the way that only Little Buddies can manage.</p>
+        <p>Little Buddies is always one of the most anticipated events on the school calendar — and this week's session lived up to every expectation. Older students stepped up as role models, showing patience, creativity, and genuine care for their younger partners. The little ones, meanwhile, brought an infectious energy and enthusiasm that lit up the whole room.</p>
+        <p>Activities ranged from reading together to crafts and games, and every pair seemed to find their own special rhythm. Teachers overseeing the session noted how naturally the older students took to their mentoring roles, guiding their buddies with kindness and encouragement at every turn.</p>
+
+        <div class="col-2" style="margin-top: 0.5rem;">
+          <div>
+            <div class="hbox">
+              <div class="hbox-head">Why Little Buddies Matters</div>
+              <p>&#9675; &nbsp;Builds leadership and responsibility in older students</p>
+              <p>&#9675; &nbsp;Gives younger students a friendly, familiar face in school</p>
+              <p>&#9675; &nbsp;Encourages kindness, patience, and communication</p>
+              <p>&#9675; &nbsp;Creates memories that last well beyond the school year</p>
+            </div>
+          </div>
+          <div style="border-left: 1px solid var(--mid); padding-left: 1.4rem;">
+            <p style="font-size:0.94rem; line-height:1.8; text-align:justify;">"It was so fun," said one student after the session. "My little buddy was really funny and we had the best time." That sentiment was echoed up and down the room — smiles everywhere, high-fives at the door, and the quiet satisfaction of a day well spent together in good company.</p>
+            <div class="pq">
+              <p>"Little Buddies is one of those things that reminds you why school is great."</p>
+              <cite>— Ryne, Staff Reporter</cite>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- CLOSING NOTE -->
+    <hr class="col-rule" />
+    <div style="text-align:center; padding: 1rem 3rem 0.5rem;">
+      <p class="kicker" style="text-align:center;">Manager's Note</p>
+      <p style="font-family:'Times New Roman',Times,serif; font-style:italic; font-size:1rem; max-width:600px; margin:0.4rem auto; line-height:1.8; color:#333;">
+        What a week it has been — shorter hours in class, big moments, and even bigger smiles. From Table 4's Dojo win to Little Buddies, from the excitement of spring break on the horizon to the bonus of a Monday off, this week delivered everything and more. Enjoy your break, rest up, and come back ready for more great stories.
+      </p>
+      <p style="margin-top:0.75rem; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:#888;">— William, Manager &bull; Cafe Times</p>
+    </div>
+
+  </main>
+
+  <footer class="page-footer">
+    Cafe Times &nbsp;&bull;&nbsp; Reporters: Olivia, Gwen, Ryne, Hudson, Everett &nbsp;&bull;&nbsp; Manager: William &nbsp;&bull;&nbsp; March 21, 2026
+  </footer>
+
+</div>
+</body>
+</html>

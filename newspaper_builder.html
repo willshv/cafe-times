@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Newspaper Builder</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #1a5c2e;
+      --gold:   #c8a84b;
+      --dark:   #0f1f14;
+      --light:  #f7f4ee;
+      --ink:    #110e08;
+      --paper:  #f6f1e6;
+      --mid:    #c2b49a;
+      --rule:   #1a140a;
+      --red:    #8b1a1a;
+      --ui-bg:  #f0f2f5;
+      --ui-card:#ffffff;
+      --ui-border: #e0e0e0;
+      --ui-accent: #2563eb;
+      --ui-accent-light: #eff6ff;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--ui-bg);
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    /* ══ TOP NAV ══ */
+    .topnav {
+      background: var(--dark);
+      color: #fff;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    .topnav-brand {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 1.6rem;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+
+    .topnav-sub {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-left: 0.75rem;
+    }
+
+    .topnav-left { display: flex; align-items: baseline; gap: 0; }
+
+    .btn-download {
+      background: var(--gold);
+      color: var(--dark);
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.2s;
+    }
+    .btn-download:hover { background: #d4b45a; }
+
+    /* ══ LAYOUT ══ */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      height: calc(100vh - 56px);
+    }
+
+    /* ══ EDITOR PANEL ══ */
+    .editor {
+      background: var(--ui-card);
+      border-right: 1px solid var(--ui-border);
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .editor-section {
+      background: var(--ui-card);
+      border: 1px solid var(--ui-border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .editor-section-head {
+      background: var(--dark);
+      color: #fff;
+      padding: 0.6rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .editor-section-head .icon { font-size: 0.9rem; }
+
+    .editor-section-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #555;
+      display: block;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.04em;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--ui-border);
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #1a1a1a;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--ui-accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+      background: #fff;
+    }
+
+    textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* Reporters tag input */
+    .tags-wrap {
+      border: 1px solid var(--ui-border);
+      border-radius: 6px;
+      background: #fafafa;
+      padding: 0.4rem 0.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      min-height: 42px;
+      cursor: text;
+    }
+    .tags-wrap:focus-within {
+      border-color: var(--ui-accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+      background: #fff;
+    }
+    .tag {
+      background: var(--ui-accent-light);
+      color: var(--ui-accent);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .tag-remove {
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      opacity: 0.6;
+    }
+    .tag-remove:hover { opacity: 1; }
+    .tag-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      flex: 1;
+      min-width: 100px;
+      padding: 0.15rem 0;
+    }
+
+    /* Articles */
+    .articles-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .article-card {
+      border: 1px solid var(--ui-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .article-card-head {
+      background: #f8f9fa;
+      border-bottom: 1px solid var(--ui-border);
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .article-card-head-left {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .article-num {
+      background: var(--dark);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .btn-remove-article {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .btn-remove-article:hover { background: #fee2e2; color: #dc2626; }
+
+    .article-card-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .btn-add-article {
+      background: var(--ui-accent-light);
+      color: var(--ui-accent);
+      border: 1px dashed var(--ui-accent);
+      border-radius: 8px;
+      padding: 0.65rem;
+      width: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-add-article:hover { background: #dbeafe; }
+
+    /* ══ PREVIEW PANEL ══ */
+    .preview-panel {
+      overflow-y: auto;
+      background: #d4c9b0;
+      padding: 2rem;
+    }
+
+    .preview-label {
+      text-align: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    /* ══ NEWSPAPER OUTPUT ══ */
+    .newspaper {
+      background: var(--paper);
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.3);
+      font-family: 'Times New Roman', Times, serif;
+      color: var(--ink);
+    }
+
+    .np-masthead {
+      padding: 1rem 1.5rem 0.7rem;
+      border-bottom: 6px double var(--rule);
+      text-align: center;
+    }
+    .np-top-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .np-flag {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+    }
+    .np-flag-sub {
+      font-style: italic;
+      font-size: 0.75rem;
+      color: #555;
+      letter-spacing: 0.12em;
+      margin-top: 0.1rem;
+    }
+    .np-staff-bar {
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin-top: 0.4rem;
+      padding: 0.2rem 0;
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .np-role { color: var(--red); font-weight: 700; }
+    .np-bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--rule);
+      margin-top: 0.4rem;
+      padding-top: 0.25rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .np-bottom-bar .np-center { font-style: italic; font-size: 0.65rem; color: var(--red); }
+
+    .np-breaking {
+      background: var(--red);
+      color: #fff;
+      text-align: center;
+      padding: 0.25rem 1rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .np-content { padding: 1rem 1.5rem; }
+
+    .np-section-rule {
+      text-align: center;
+      border-top: 3px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 0.2rem 0;
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin: 1rem 0 0.75rem;
+      font-weight: 700;
+    }
+
+    .np-grid {
+      display: grid;
+      gap: 0 1.2rem;
+    }
+    .np-grid-1 { grid-template-columns: 1fr; }
+    .np-grid-2 { grid-template-columns: repeat(2,1fr); }
+    .np-grid-3 { grid-template-columns: repeat(3,1fr); }
+    .np-grid > * + * { border-left: 1px solid var(--mid); padding-left: 1.2rem; }
+
+    .np-article { padding: 0.3rem 0 0.8rem; }
+    .np-kicker {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.2rem;
+    }
+    .np-article h3 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      line-height: 1.15;
+      font-size: 1.35rem;
+      margin-bottom: 0.3rem;
+    }
+    .np-article h3.sm { font-size: 1rem; }
+    .np-byline {
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #777;
+      border-top: 1px solid var(--mid);
+      border-bottom: 1px solid var(--mid);
+      padding: 0.15rem 0;
+      margin-bottom: 0.5rem;
+    }
+    .np-article p {
+      font-size: 0.8rem;
+      line-height: 1.75;
+      margin-bottom: 0.5rem;
+      text-align: justify;
+      hyphens: auto;
+    }
+    .np-article p:first-of-type::first-letter {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 900;
+      float: left;
+      line-height: 0.78;
+      margin: 0.05em 0.08em 0 0;
+    }
+
+    .np-footer {
+      border-top: 4px double var(--rule);
+      background: var(--ink);
+      color: var(--mid);
+      text-align: center;
+      padding: 0.5rem 1.5rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .np-empty {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    hr.np-rule { border: none; border-top: 1px solid var(--mid); margin: 0.8rem 0; }
+
+    /* ══ Scrollbar styling ══ */
+    .editor::-webkit-scrollbar,
+    .preview-panel::-webkit-scrollbar { width: 6px; }
+    .editor::-webkit-scrollbar-track,
+    .preview-panel::-webkit-scrollbar-track { background: transparent; }
+    .editor::-webkit-scrollbar-thumb,
+    .preview-panel::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+    /* ══ Example Audio Bar ══ */
+    .ex-audio-bar {
+      background: #110e08;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.7rem 1.5rem;
+    }
+    .ex-audio-label {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #c8a84b;
+      white-space: nowrap;
+    }
+    .ex-audio-btn {
+      background: #c8a84b;
+      color: #110e08;
+      border: none;
+      border-radius: 50%;
+      width: 2.2rem;
+      height: 2.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .ex-audio-btn:hover { background: #d4b45a; }
+    .ex-progress-wrap { flex:1; display:flex; flex-direction:column; gap:0.25rem; min-width:0; }
+    .ex-status { font-style:italic; font-size:0.75rem; color:rgba(255,255,255,0.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Times New Roman',Times,serif; }
+    .ex-bar-bg { background:#333; border-radius:4px; height:4px; width:100%; }
+    .ex-bar-fill { background:#c8a84b; border-radius:4px; height:4px; width:0%; transition:width 0.3s; }
+    .ex-speed { background:#222; color:#c8a84b; border:1px solid #444; border-radius:4px; padding:0.3rem 0.4rem; font-family:'Times New Roman',Times,serif; font-size:0.75rem; cursor:pointer; }
+    .ex-speaking { background:rgba(200,168,75,0.15); border-left:3px solid #c8a84b; padding-left:0.5rem; margin-left:-0.5rem; border-radius:2px; }
+
+    /* ══ Tip ══ */
+    .tip {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.75rem;
+      color: #92400e;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="topnav-left">
+    <span class="topnav-brand">NewsBuilder</span>
+    <span class="topnav-sub">Class Newspaper Creator</span>
+  </div>
+  <button class="btn-download" onclick="downloadNewspaper()">&#11015; Download Newspaper</button>
+</nav>
+
+<div class="app-layout">
+
+  <!-- ══ EDITOR ══ -->
+  <aside class="editor">
+
+    <!-- Newspaper Info -->
+    <div class="editor-section">
+      <div class="editor-section-head"><span class="icon">📰</span> Newspaper Info</div>
+      <div class="editor-section-body">
+        <div>
+          <label>Newspaper Name</label>
+          <input type="text" id="np-name" placeholder="e.g. The Cafe Times" oninput="updatePreview()" />
+        </div>
+        <div>
+          <label>Tagline</label>
+          <input type="text" id="np-tagline" placeholder="e.g. All the News Fit to Print" oninput="updatePreview()" />
+        </div>
+        <div>
+          <label>Breaking News Banner (optional)</label>
+          <input type="text" id="np-banner" placeholder="e.g. Spring Break Is Almost Here!" oninput="updatePreview()" />
+        </div>
+        <div class="row-2">
+          <div>
+            <label>Date</label>
+            <input type="date" id="np-date" oninput="updatePreview()" />
+          </div>
+          <div>
+            <label>Edition / Volume</label>
+            <input type="text" id="np-vol" placeholder="e.g. Vol. 1 Issue 1" oninput="updatePreview()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff -->
+    <div class="editor-section">
+      <div class="editor-section-head"><span class="icon">👥</span> Staff</div>
+      <div class="editor-section-body">
+        <div>
+          <label>Manager / Editor</label>
+          <input type="text" id="np-manager" placeholder="e.g. William" oninput="updatePreview()" />
+        </div>
+        <div>
+          <label>Reporters — type a name and press Enter</label>
+          <div class="tags-wrap" id="reporters-wrap" onclick="document.getElementById('reporter-input').focus()">
+            <input class="tag-input" id="reporter-input" placeholder="Add reporter name..." />
+          </div>
+        </div>
+        <div class="tip">💡 Type each reporter's name and press <strong>Enter</strong> to add them.</div>
+      </div>
+    </div>
+
+    <!-- Articles -->
+    <div class="editor-section">
+      <div class="editor-section-head"><span class="icon">✏️</span> Articles</div>
+      <div class="editor-section-body">
+        <div class="articles-list" id="articles-list"></div>
+        <button class="btn-add-article" onclick="addArticle()">+ Add Article</button>
+        <div class="tip">💡 Add up to 6 articles. The first article will be the biggest headline.</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══ PREVIEW ══ -->
+  <section class="preview-panel">
+    <p class="preview-label">&#128065; Live Preview — updates as you type</p>
+    <div id="newspaper-preview"></div>
+  </section>
+
+</div>
+
+<script>
+  // ── State ──
+  let reporters = [];
+  let articles = [];
+  let articleCounter = 0;
+
+  // ── Reporter tag input ──
+  const reporterInput = document.getElementById('reporter-input');
+  reporterInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = reporterInput.value.trim().replace(/,$/, '');
+      if (val && !reporters.includes(val)) {
+        reporters.push(val);
+        renderReporterTags();
+        updatePreview();
+      }
+      reporterInput.value = '';
+    } else if (e.key === 'Backspace' && reporterInput.value === '' && reporters.length) {
+      reporters.pop();
+      renderReporterTags();
+      updatePreview();
+    }
+  });
+
+  function removeReporter(name) {
+    reporters = reporters.filter(r => r !== name);
+    renderReporterTags();
+    updatePreview();
+  }
+
+  function renderReporterTags() {
+    const wrap = document.getElementById('reporters-wrap');
+    wrap.innerHTML = '';
+    reporters.forEach(name => {
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.innerHTML = `${name} <span class="tag-remove" onclick="removeReporter('${name}')">×</span>`;
+      wrap.appendChild(tag);
+    });
+    wrap.appendChild(reporterInput);
+    reporterInput.focus();
+  }
+
+  // ── Articles ──
+  function addArticle() {
+    if (articles.length >= 6) {
+      alert('Maximum 6 articles reached.');
+      return;
+    }
+    articleCounter++;
+    const id = articleCounter;
+    articles.push({ id, title: '', author: '', content: '', kicker: '' });
+    renderArticleCards();
+    updatePreview();
+  }
+
+  function removeArticle(id) {
+    articles = articles.filter(a => a.id !== id);
+    renderArticleCards();
+    updatePreview();
+  }
+
+  function updateArticle(id, field, value) {
+    const art = articles.find(a => a.id === id);
+    if (art) { art[field] = value; updatePreview(); }
+  }
+
+  function renderArticleCards() {
+    const list = document.getElementById('articles-list');
+    list.innerHTML = '';
+    articles.forEach((art, i) => {
+      const card = document.createElement('div');
+      card.className = 'article-card';
+      card.innerHTML = `
+        <div class="article-card-head">
+          <div class="article-card-head-left">
+            <span class="article-num">${i + 1}</span>
+            <span>${art.title || 'Untitled Article'}</span>
+          </div>
+          <button class="btn-remove-article" onclick="removeArticle(${art.id})" title="Remove">&#10005;</button>
+        </div>
+        <div class="article-card-body">
+          <div>
+            <label>Section Label (optional)</label>
+            <input type="text" placeholder="e.g. Week in Review" value="${art.kicker}"
+              oninput="updateArticle(${art.id}, 'kicker', this.value)" />
+          </div>
+          <div>
+            <label>Headline</label>
+            <input type="text" placeholder="e.g. Spring Break Is Almost Here!" value="${art.title}"
+              oninput="updateArticle(${art.id}, 'title', this.value)" />
+          </div>
+          <div>
+            <label>Author</label>
+            <input type="text" placeholder="e.g. Olivia" value="${art.author}"
+              oninput="updateArticle(${art.id}, 'author', this.value)" />
+          </div>
+          <div>
+            <label>Article Body</label>
+            <textarea placeholder="Write your article here..." oninput="updateArticle(${art.id}, 'content', this.value)">${art.content}</textarea>
+          </div>
+        </div>`;
+      list.appendChild(card);
+    });
+  }
+
+  // ── Format date ──
+  function fmtDate(val) {
+    if (!val) return '';
+    const d = new Date(val + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  // ── Build preview HTML ──
+  function updatePreview() {
+    const name    = document.getElementById('np-name').value    || 'Your Newspaper';
+    const tagline = document.getElementById('np-tagline').value || 'All the News Fit to Print';
+    const banner  = document.getElementById('np-banner').value;
+    const date    = fmtDate(document.getElementById('np-date').value) || 'Today';
+    const vol     = document.getElementById('np-vol').value     || 'Vol. 1 Issue 1';
+    const manager = document.getElementById('np-manager').value || '';
+
+    // Masthead
+    const staffHtml = [
+      ...reporters.map(r => `<span><span class="np-role">Reporter:</span> ${r}</span>`),
+      manager ? `<span><span class="np-role">Manager:</span> ${manager}</span>` : ''
+    ].filter(Boolean).join('');
+
+    const bannerHtml = banner
+      ? `<div class="np-breaking">&#9733; &nbsp; ${banner} &nbsp; &#9733;</div>` : '';
+
+    // Articles
+    let articlesHtml = '';
+    if (articles.length === 0) {
+      articlesHtml = `<div class="np-empty">Add articles in the editor to see them here.</div>`;
+    } else {
+      // Layout: first article big, rest in columns
+      const cols = articles.length <= 2 ? articles.length : articles.length <= 4 ? 2 : 3;
+      const gridClass = cols === 1 ? 'np-grid-1' : cols === 2 ? 'np-grid-2' : 'np-grid-3';
+      const headlineSize = cols === 1 ? '' : 'sm';
+
+      articlesHtml = `
+        <div class="np-section-rule">This Week's Stories</div>
+        <div class="np-grid ${gridClass}">
+          ${articles.map((art, i) => {
+            const paras = (art.content || '').split('\n').filter(l => l.trim());
+            const parasHtml = paras.length
+              ? paras.map(p => `<p>${p}</p>`).join('')
+              : '<p>Article content will appear here.</p>';
+            return `
+              <div class="np-article">
+                ${art.kicker ? `<p class="np-kicker">${art.kicker}</p>` : ''}
+                <h3 class="${headlineSize}">${art.title || 'Untitled'}</h3>
+                ${art.author ? `<div class="np-byline">By <strong>${art.author}</strong>${manager ? ` &bull; Managed by ${manager}` : ''}</div>` : ''}
+                ${parasHtml}
+              </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    const footerParts = [
+      name,
+      reporters.length ? `Reporters: ${reporters.join(', ')}` : '',
+      manager ? `Manager: ${manager}` : '',
+      date
+    ].filter(Boolean).join(' &bull; ');
+
+    const html = `
+      <div class="newspaper">
+        <div class="np-masthead">
+          <div class="np-top-bar">
+            <span>${vol}</span>
+            <span>Your Classroom's #1 Source for News</span>
+            <span>${date}</span>
+          </div>
+          <div class="np-flag">${name}</div>
+          <div class="np-flag-sub">${tagline}</div>
+          ${staffHtml ? `<div class="np-staff-bar">${staffHtml}</div>` : ''}
+          <div class="np-bottom-bar">
+            <span>Free to All Students</span>
+            <span class="np-center">${manager ? `Managed by <strong>${manager}</strong>` : ''}</span>
+            <span>${date}</span>
+          </div>
+        </div>
+        ${bannerHtml}
+        <div class="np-content">
+          ${articlesHtml}
+        </div>
+        <div class="np-footer">${footerParts}</div>
+      </div>`;
+
+    document.getElementById('newspaper-preview').innerHTML = html;
+  }
+
+  // ── Download ──
+  function downloadNewspaper() {
+    const name = document.getElementById('np-name').value || 'newspaper';
+    const previewHTML = document.getElementById('newspaper-preview').innerHTML;
+
+    const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${name}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #110e08; --paper: #f6f1e6; --mid: #c2b49a;
+      --rule: #1a140a; --red: #8b1a1a; --gold: #c8a84b;
+    }
+    body { background: #c9bc9f; font-family: 'Times New Roman', Times, serif; }
+    .newspaper { background: var(--paper); max-width: 1000px; margin: 2rem auto; box-shadow: 0 4px 40px rgba(0,0,0,0.3); color: var(--ink); }
+    .np-masthead { padding: 1.2rem 2rem 0.8rem; border-bottom: 6px double var(--rule); text-align: center; }
+    .np-top-bar { display:flex; justify-content:space-between; font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; border-bottom:1px solid var(--rule); padding-bottom:0.35rem; margin-bottom:0.6rem; }
+    .np-flag { font-family:'UnifrakturMaguntia',cursive; font-size:clamp(2.5rem,6vw,5rem); line-height:1; }
+    .np-flag-sub { font-style:italic; font-size:0.85rem; color:#555; letter-spacing:0.15em; margin-top:0.15rem; }
+    .np-staff-bar { border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); margin-top:0.5rem; padding:0.25rem 0; font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase; display:flex; justify-content:center; gap:1.8rem; flex-wrap:wrap; }
+    .np-role { color:var(--red); font-weight:700; }
+    .np-bottom-bar { display:flex; justify-content:space-between; border-top:1px solid var(--rule); margin-top:0.4rem; padding-top:0.3rem; font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase; }
+    .np-bottom-bar .np-center { font-style:italic; font-size:0.75rem; color:var(--red); }
+    .np-breaking { background:var(--red); color:#fff; text-align:center; padding:0.3rem 1rem; font-size:0.68rem; letter-spacing:0.25em; text-transform:uppercase; font-weight:700; }
+    .np-content { padding:1.5rem 2rem; }
+    .np-section-rule { text-align:center; border-top:3px solid var(--rule); border-bottom:1px solid var(--rule); padding:0.25rem 0; font-size:0.62rem; letter-spacing:0.3em; text-transform:uppercase; margin:1.2rem 0 1rem; font-weight:700; }
+    .np-grid { display:grid; gap:0 1.4rem; }
+    .np-grid-1 { grid-template-columns:1fr; }
+    .np-grid-2 { grid-template-columns:repeat(2,1fr); }
+    .np-grid-3 { grid-template-columns:repeat(3,1fr); }
+    .np-grid > * + * { border-left:1px solid var(--mid); padding-left:1.4rem; }
+    .np-article { padding:0.4rem 0 0.9rem; }
+    .np-kicker { font-size:0.6rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:var(--red); margin-bottom:0.2rem; }
+    .np-article h3 { font-family:'Playfair Display',serif; font-weight:900; line-height:1.15; font-size:1.6rem; margin-bottom:0.35rem; }
+    .np-article h3.sm { font-size:1.1rem; }
+    .np-byline { font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:#777; border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:0.18rem 0; margin-bottom:0.55rem; }
+    .np-article p { font-size:0.9rem; line-height:1.78; margin-bottom:0.55rem; text-align:justify; hyphens:auto; }
+    .np-article p:first-of-type::first-letter { font-family:'Playfair Display',serif; font-size:3.5rem; font-weight:900; float:left; line-height:0.78; margin:0.05em 0.08em 0 0; }
+    .np-footer { border-top:4px double var(--rule); background:var(--ink); color:var(--mid); text-align:center; padding:0.65rem 2rem; font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; }
+    .np-empty { text-align:center; padding:2rem; color:#999; font-style:italic; }
+    @media print { @page { size:A3 landscape; margin:10mm; } body { background:#fff; } .newspaper { box-shadow:none; margin:0; max-width:100%; } }
+  </style>
+</head>
+<body>
+${previewHTML}
+</body>
+</html>`;
+
+    const blob = new Blob([fullHTML], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (name.toLowerCase().replace(/\s+/g, '-') || 'newspaper') + '.html';
+    a.click();
+  }
+
+  // ── Init ──
+  document.getElementById('np-date').value = new Date().toISOString().split('T')[0];
+  updatePreview();
+
+</script>
+
+<!-- ══ EXAMPLE SECTION ══ -->
+<section style="background:#b8ad95; padding: 3rem 2rem;">
+  <div style="max-width:1080px; margin:0 auto;">
+
+    <div style="text-align:center; margin-bottom:2rem;">
+      <p style="font-family:'Inter',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.35em; text-transform:uppercase; color:#5a5040; margin-bottom:0.5rem;">Example Newspaper</p>
+      <h2 style="font-family:'UnifrakturMaguntia',cursive; font-size:2.5rem; color:#1a140a;">See What You Can Make</h2>
+      <p style="font-family:'Inter',sans-serif; font-size:0.9rem; color:#5a5040; margin-top:0.5rem;">Here's a real newspaper made with this builder — the Cafe Times, created by a class in March 2026.</p>
+    </div>
+
+    <!-- CAFE TIMES NEWSPAPER -->
+    <div style="background:#f6f1e6; max-width:1080px; margin:0 auto; box-shadow:0 6px 50px rgba(0,0,0,0.4); font-family:'Times New Roman',Times,serif; color:#110e08;">
+
+      <!-- Masthead -->
+      <div style="padding:1.2rem 2rem 0.8rem; border-bottom:6px double #1a140a; text-align:center;">
+        <div style="display:flex; justify-content:space-between; font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; border-bottom:1px solid #1a140a; padding-bottom:0.35rem; margin-bottom:0.6rem;">
+          <span>Vol. 1 &bull; Issue 1</span>
+          <span>Your Classroom's #1 Source for News</span>
+          <span>Week of March 21, 2026</span>
+        </div>
+        <div style="font-family:'UnifrakturMaguntia',cursive; font-size:clamp(2.8rem,7vw,5.2rem); line-height:1;">Cafe Times</div>
+        <div style="font-style:italic; font-size:0.9rem; color:#555; letter-spacing:0.15em; margin-top:0.15rem;">All the News That's Fit to Print &mdash; From Our Classroom to Yours</div>
+        <div style="border-top:1px solid #1a140a; border-bottom:1px solid #1a140a; margin-top:0.55rem; padding:0.3rem 0; font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase; display:flex; justify-content:center; gap:1.8rem; flex-wrap:wrap;">
+          <span><span style="color:#8b1a1a;font-weight:700;">Reporter:</span> Olivia</span>
+          <span><span style="color:#8b1a1a;font-weight:700;">Reporter:</span> Gwen</span>
+          <span><span style="color:#8b1a1a;font-weight:700;">Reporter:</span> Ryne</span>
+          <span><span style="color:#8b1a1a;font-weight:700;">Reporter:</span> Hudson</span>
+          <span><span style="color:#8b1a1a;font-weight:700;">Reporter:</span> Everett</span>
+          <span><span style="color:#8b1a1a;font-weight:700;">Manager:</span> William</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-top:1px solid #1a140a; margin-top:0.45rem; padding-top:0.3rem; font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase;">
+          <span>Free to All Students</span>
+          <span style="font-style:italic; font-size:0.8rem; color:#8b1a1a;">Managed by <strong>William</strong> &bull; Spring Edition</span>
+          <span>March 21, 2026</span>
+        </div>
+      </div>
+
+      <!-- Audio Bar -->
+      <div class="ex-audio-bar">
+        <span class="ex-audio-label">&#127908; Read Aloud</span>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <button class="ex-audio-btn" id="ex-btn-play" title="Play / Pause">&#9654;</button>
+          <button class="ex-audio-btn" id="ex-btn-stop" title="Stop">&#9646;&#9646;</button>
+        </div>
+        <div class="ex-progress-wrap">
+          <div class="ex-status" id="ex-status">Press play to hear the Cafe Times read aloud</div>
+          <div class="ex-bar-bg"><div class="ex-bar-fill" id="ex-bar-fill"></div></div>
+        </div>
+        <select class="ex-speed" id="ex-speed">
+          <option value="0.9">Slow</option>
+          <option value="1.2" selected>Normal</option>
+          <option value="1.5">Fast</option>
+          <option value="1.8">Very Fast</option>
+        </select>
+      </div>
+
+      <!-- Banner -->
+      <div style="background:#8b1a1a; color:#fff; text-align:center; padding:0.35rem 1rem; font-size:0.75rem; letter-spacing:0.25em; text-transform:uppercase; font-weight:700;">&#9733; &nbsp; Special Edition: Spring Break Is Almost Here! &nbsp; &#9733;</div>
+
+      <!-- Content -->
+      <div style="padding:1.4rem 2rem;">
+
+        <div style="text-align:center; border-top:3px solid #1a140a; border-bottom:1px solid #1a140a; padding:0.3rem 0; font-size:0.72rem; letter-spacing:0.3em; text-transform:uppercase; margin:0 0 1rem; font-weight:700;">This Week's Top Stories</div>
+
+        <!-- 2-col grid -->
+        <div style="display:grid; grid-template-columns:2fr 1fr; gap:0 1.4rem;">
+
+          <!-- Lead article -->
+          <div style="padding:0.4rem 0 1rem;">
+            <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:#8b1a1a; margin-bottom:0.25rem;">Week in Review</p>
+            <h2 style="font-family:'UnifrakturMaguntia',cursive; font-size:2.2rem; line-height:1.15; margin-bottom:0.35rem;">Shorter Hours Make for a Sweet Week</h2>
+            <p style="font-style:italic; font-size:0.95rem; color:#444; line-height:1.55; margin-bottom:0.55rem;">With less time in the classroom each day, students found this week to be a breath of fresh air — and a perfect warm-up for spring break.</p>
+            <div style="font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:#777; border-top:1px solid #c2b49a; border-bottom:1px solid #c2b49a; padding:0.2rem 0; margin-bottom:0.65rem;">By <strong style="color:#110e08;">Olivia</strong> &bull; Staff Reporter &bull; Managed by William</div>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; margin-bottom:0.65rem; text-align:justify;">This week was unlike any other on the school calendar. With shorter hours in class each day, students and teachers found themselves working with a trimmed schedule — and the results were surprisingly wonderful. Less time in the building meant more focus, more energy, and a whole lot more excitement buzzing through the hallways.</p>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; margin-bottom:0.65rem; text-align:justify;">Rather than the usual full day, the shortened classroom hours gave everyone a chance to breathe, recharge, and still get through everything that needed to be covered. Teachers packed their lessons with purpose, and students showed up ready to make every minute count.</p>
+            <div style="border-top:3px solid #1a140a; border-bottom:3px solid #1a140a; padding:0.8rem 0.6rem; margin:1rem 0; text-align:center;">
+              <p style="font-style:italic; font-size:1.1rem; line-height:1.5;">"Shorter hours, bigger smiles. That about sums up the week."</p>
+              <cite style="display:block; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:#777; margin-top:0.4rem; font-style:normal;">— Gwen, Staff Reporter</cite>
+            </div>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; text-align:justify;">As the week draws to a close, students can look back with pride on what they accomplished in less time than usual. Homework was turned in, participation was strong, and the whole building had an undeniable spring-break-eve kind of energy.</p>
+          </div>
+
+          <!-- Sidebar -->
+          <div style="border-left:1px solid #c2b49a; padding-left:1.4rem;">
+            <div style="padding:0.4rem 0 1rem;">
+              <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:#8b1a1a; margin-bottom:0.25rem;">Upcoming</p>
+              <h2 style="font-family:'UnifrakturMaguntia',cursive; font-size:1.4rem; line-height:1.2; margin-bottom:0.35rem;">Spring Break Is Almost Here!</h2>
+              <div style="font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:#777; border-top:1px solid #c2b49a; border-bottom:1px solid #c2b49a; padding:0.2rem 0; margin-bottom:0.65rem;">By <strong style="color:#110e08;">Ryne</strong> &bull; Managed by William</div>
+              <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; margin-bottom:0.65rem; text-align:justify;">The moment every student has been waiting for is nearly upon us. Spring break is just around the corner, and excitement has reached a fever pitch throughout the building.</p>
+              <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; text-align:justify;">Students are already making plans — trips with family, sleeping in, and a well-deserved rest from the school routine.</p>
+            </div>
+            <hr style="border:none; border-top:1px solid #c2b49a; margin:0.8rem 0;" />
+            <div style="padding:0.4rem 0 1rem;">
+              <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:#8b1a1a; margin-bottom:0.25rem;">Extra Good News</p>
+              <h2 style="font-family:'UnifrakturMaguntia',cursive; font-size:1.4rem; line-height:1.2; margin-bottom:0.35rem;">Extended Break: Monday Is Off!</h2>
+              <div style="font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:#777; border-top:1px solid #c2b49a; border-bottom:1px solid #c2b49a; padding:0.2rem 0; margin-bottom:0.65rem;">By <strong style="color:#110e08;">Hudson</strong> &bull; Managed by William</div>
+              <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; margin-bottom:0.65rem; text-align:justify;">In what may be the best news of the week, students have learned that spring break will be even longer — because <strong>Monday is off!</strong></p>
+              <div style="background:#110e08; color:#f6f1e6; padding:1rem; margin:0.9rem 0;">
+                <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:#b8860b; border-bottom:1px solid #444; padding-bottom:0.28rem; margin-bottom:0.55rem;">Spring Break Countdown</div>
+                <p style="font-size:0.88rem; color:#e8e0d0; margin-bottom:0.3rem; line-height:1.65;">&#9733; &nbsp;Shorter class hours: Complete &#10003;</p>
+                <p style="font-size:0.88rem; color:#e8e0d0; margin-bottom:0.3rem; line-height:1.65;">&#9733; &nbsp;Spring break: Very soon!</p>
+                <p style="font-size:0.88rem; color:#e8e0d0; margin-bottom:0.3rem; line-height:1.65;">&#9733; &nbsp;Monday off: Yes!</p>
+                <p style="font-size:0.88rem; color:#e8e0d0; line-height:1.65;">&#9733; &nbsp;Extended break: Extra long!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid #c2b49a; margin:1.1rem 0;" />
+        <div style="text-align:center; border-top:3px solid #1a140a; border-bottom:1px solid #1a140a; padding:0.3rem 0; font-size:0.72rem; letter-spacing:0.3em; text-transform:uppercase; margin:0 0 1rem; font-weight:700;">School Spotlight</div>
+
+        <!-- 3-col grid -->
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0 1.4rem;">
+
+          <!-- Dojo -->
+          <div style="padding:0.4rem 0 1rem;">
+            <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:#8b1a1a; margin-bottom:0.25rem;">Dojo Award</p>
+            <h2 style="font-family:'UnifrakturMaguntia',cursive; font-size:1.5rem; line-height:1.2; margin-bottom:0.35rem;">Table 4 Takes the Dojo Crown!</h2>
+            <div style="font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:#777; border-top:1px solid #c2b49a; border-bottom:1px solid #c2b49a; padding:0.2rem 0; margin-bottom:0.65rem;">By <strong style="color:#110e08;">Everett</strong> &bull; Managed by William</div>
+            <div style="background:linear-gradient(135deg,#1a3a1a,#2d5a2d); color:#fff; text-align:center; padding:1.2rem 1rem; margin:0.9rem 0; border:3px solid #b8860b;">
+              <div style="font-size:2.5rem; margin-bottom:0.4rem;">&#127942;</div>
+              <div style="font-size:1.2rem; font-weight:900; color:#b8860b; letter-spacing:0.05em;">TABLE 4</div>
+              <div style="font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.7); margin-top:0.3rem;">Dojo Winners &bull; This Week</div>
+            </div>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; margin-bottom:0.65rem; text-align:justify;">After a hard-fought competition, the results are in — Table 4 has officially been crowned this week's Dojo winner! The announcement sent cheers through the classroom.</p>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; text-align:justify;">Congratulations to every student at Table 4. The trophy — and the bragging rights — are yours this week!</p>
+          </div>
+
+          <!-- Little Buddies -->
+          <div style="grid-column:span 2; border-left:1px solid #c2b49a; padding-left:1.4rem; padding-top:0.4rem; padding-bottom:1rem;">
+            <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:#8b1a1a; margin-bottom:0.25rem;">Special Event</p>
+            <h2 style="font-family:'UnifrakturMaguntia',cursive; font-size:1.8rem; line-height:1.15; margin-bottom:0.35rem;">Little Buddies Brings Big Smiles All Around</h2>
+            <div style="font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:#777; border-top:1px solid #c2b49a; border-bottom:1px solid #c2b49a; padding:0.2rem 0; margin-bottom:0.65rem;">By <strong style="color:#110e08;">Gwen</strong> &amp; <strong style="color:#110e08;">Olivia</strong> &bull; Managed by William</div>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; margin-bottom:0.65rem; text-align:justify;">This week's Little Buddies session was nothing short of wonderful. Students had the chance to spend time with their little buddies, and the joy on everyone's faces said everything that words cannot fully capture. Laughter filled the room, activities were shared, and bonds were strengthened.</p>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; margin-bottom:0.65rem; text-align:justify;">Older students stepped up as role models, showing patience, creativity, and genuine care for their younger partners. The little ones brought an infectious energy and enthusiasm that lit up the whole room.</p>
+            <p class="ex-readable" style="font-size:0.94rem; line-height:1.8; text-align:justify;">"It was so fun," said one student. "My little buddy was really funny and we had the best time." Smiles everywhere, high-fives at the door — a day well spent.</p>
+            <div style="border-top:3px solid #1a140a; border-bottom:3px solid #1a140a; padding:0.8rem 0.6rem; margin:1rem 0; text-align:center;">
+              <p style="font-style:italic; font-size:1.05rem; line-height:1.5;">"Little Buddies is one of those things that reminds you why school is great."</p>
+              <cite style="display:block; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:#777; margin-top:0.4rem; font-style:normal;">— Ryne, Staff Reporter</cite>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Manager's note -->
+        <hr style="border:none; border-top:1px solid #c2b49a; margin:1.1rem 0;" />
+        <div style="text-align:center; padding:1rem 3rem 0.5rem;">
+          <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:#8b1a1a; margin-bottom:0.5rem;">Manager's Note</p>
+          <p style="font-style:italic; font-size:1rem; max-width:600px; margin:0.4rem auto; line-height:1.8; color:#333;">What a week it has been — shorter hours in class, big moments, and even bigger smiles. From Table 4's Dojo win to Little Buddies, from the excitement of spring break on the horizon to the bonus of a Monday off, this week delivered everything and more.</p>
+          <p style="margin-top:0.75rem; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:#888;">— William, Manager &bull; Cafe Times</p>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div style="border-top:4px double #1a140a; background:#110e08; color:#c2b49a; text-align:center; padding:0.7rem 2rem; font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase;">
+        Cafe Times &nbsp;&bull;&nbsp; Reporters: Olivia, Gwen, Ryne, Hudson, Everett &nbsp;&bull;&nbsp; Manager: William &nbsp;&bull;&nbsp; March 21, 2026
+      </div>
+
+    </div><!-- end cafe times -->
+  </div>
+</section>
+
+<!-- Example audio script — must be AFTER the example HTML so the elements exist -->
+<script>
+  const exSynth   = window.speechSynthesis;
+  const exBtnPlay = document.getElementById('ex-btn-play');
+  const exBtnStop = document.getElementById('ex-btn-stop');
+  const exStatus  = document.getElementById('ex-status');
+  const exFill    = document.getElementById('ex-bar-fill');
+  const exSpeed   = document.getElementById('ex-speed');
+
+  let exSentences = [];
+  let exIndex  = 0;
+  let exPlaying = false;
+  let exPaused  = false;
+
+  function exGetVoice() {
+    const v = exSynth.getVoices();
+    return (
+      v.find(x => x.name === 'Daniel')       ||
+      v.find(x => x.name === 'Moira')        ||
+      v.find(x => x.name === 'Karen')        ||
+      v.find(x => x.name === 'Samantha')     ||
+      v.find(x => x.name.includes('Daniel')) ||
+      v.find(x => x.lang === 'en-GB')        ||
+      v.find(x => x.lang === 'en-AU')        ||
+      v.find(x => x.lang.startsWith('en'))   ||
+      v[0]
+    );
+  }
+
+  function exBuild() {
+    exSentences = [];
+    document.querySelectorAll('.ex-readable').forEach(el => {
+      const parts = el.textContent.trim().match(/[^.!?]+[.!?]+["']?|[^.!?]+$/g) || [el.textContent.trim()];
+      parts.forEach(s => { if (s.trim().length > 2) exSentences.push({ text: s.trim(), el }); });
+    });
+  }
+
+  function exClear() {
+    document.querySelectorAll('.ex-readable').forEach(e => e.classList.remove('ex-speaking'));
+  }
+
+  function exSpeak(i) {
+    if (i >= exSentences.length) {
+      exClear(); exPlaying = false; exPaused = false; exIndex = 0;
+      exBtnPlay.innerHTML = '&#9654;';
+      exStatus.textContent = 'Finished reading!';
+      exFill.style.width = '100%';
+      return;
+    }
+    exIndex = i;
+    const { text, el } = exSentences[i];
+    exClear();
+    el.classList.add('ex-speaking');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    exStatus.textContent = '"' + text.slice(0, 55) + '..."';
+    exFill.style.width = ((i / exSentences.length) * 100) + '%';
+
+    const utt = new SpeechSynthesisUtterance(text);
+    const rv = (Math.random() * 0.08) - 0.04;
+    utt.rate   = (parseFloat(exSpeed.value) * 0.92) + rv;
+    utt.pitch  = 1.15;
+    utt.volume = 1;
+    utt.voice  = exGetVoice();
+    utt.onend  = () => { if (exPlaying && !exPaused) exSpeak(exIndex + 1); };
+    exSynth.speak(utt);
+  }
+
+  exBtnPlay.addEventListener('click', () => {
+    if (!exPlaying && !exPaused) {
+      exBuild();
+      exPlaying = true;
+      exBtnPlay.innerHTML = '&#9646;&#9646;';
+      exSpeak(exIndex);
+    } else if (exPlaying && !exPaused) {
+      exSynth.pause(); exPaused = true; exPlaying = false;
+      exBtnPlay.innerHTML = '&#9654;';
+      exStatus.textContent = 'Paused — press play to continue';
+    } else if (exPaused) {
+      exSynth.resume(); exPaused = false; exPlaying = true;
+      exBtnPlay.innerHTML = '&#9646;&#9646;';
+    }
+  });
+
+  exBtnStop.addEventListener('click', () => {
+    exSynth.cancel(); exPlaying = false; exPaused = false; exIndex = 0;
+    exClear(); exBtnPlay.innerHTML = '&#9654;';
+    exStatus.textContent = 'Stopped — press play to start over';
+    exFill.style.width = '0%';
+  });
+</script>
+</body>
+</html>
